@@ -1,2 +1,2 @@
-# Be.Stateless.BizTalk.Settings
-BizTalk Factory's SSO settings reader.
+﻿# Be.Stateless.BizTalk.Settings
+BizTalk Factory's SSO settings object model.

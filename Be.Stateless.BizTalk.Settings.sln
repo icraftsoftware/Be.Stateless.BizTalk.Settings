@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Stateless.BizTalk.Settings", "src\Be.Stateless.BizTalk.Settings\Be.Stateless.BizTalk.Settings.csproj", "{5CE04D37-FCB9-4A13-873F-B66FAB2AA1BF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Stateless.BizTalk.Settings.Tests", "src\Be.Stateless.BizTalk.Settings.Tests\Be.Stateless.BizTalk.Settings.Tests.csproj", "{2BC620DB-BAC3-4DDB-8F60-53AD88083D26}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{18104AB2-6A84-4B08-9955-92E56AB2E39E}"
+	ProjectSection(SolutionItems) = preProject
+		build\be.stateless.public.snk = build\be.stateless.public.snk
+		build\build.ps1 = build\build.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common.msbuild", "Common.msbuild", "{722427F1-B21C-49D4-9984-DF8F804BA869}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Be.Stateless.BizTalk.Settings.Cli", "src\Be.Stateless.BizTalk.Settings.Cli\Be.Stateless.BizTalk.Settings.Cli.csproj", "{6A6616DE-6AC6-45A5-B4D0-0C5F68B7B6CF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{090B4A16-A894-4863-ACEA-C08FA092B269}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5CE04D37-FCB9-4A13-873F-B66FAB2AA1BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CE04D37-FCB9-4A13-873F-B66FAB2AA1BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CE04D37-FCB9-4A13-873F-B66FAB2AA1BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CE04D37-FCB9-4A13-873F-B66FAB2AA1BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BC620DB-BAC3-4DDB-8F60-53AD88083D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BC620DB-BAC3-4DDB-8F60-53AD88083D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BC620DB-BAC3-4DDB-8F60-53AD88083D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BC620DB-BAC3-4DDB-8F60-53AD88083D26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A6616DE-6AC6-45A5-B4D0-0C5F68B7B6CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A6616DE-6AC6-45A5-B4D0-0C5F68B7B6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A6616DE-6AC6-45A5-B4D0-0C5F68B7B6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A6616DE-6AC6-45A5-B4D0-0C5F68B7B6CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {401721C3-A7ED-46A3-A43F-787333805E2A}
+	EndGlobalSection
+EndGlobal
