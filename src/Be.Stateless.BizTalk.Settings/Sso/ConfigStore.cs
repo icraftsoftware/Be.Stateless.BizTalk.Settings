@@ -32,9 +32,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 		internal sealed class ConfigStoreProperties : IPropertyBag
 		{
-			internal ConfigStoreProperties(string name, string identifier)
+			internal ConfigStoreProperties(string affiliateApplicationName, string identifier)
 			{
-				_name = name;
+				_affiliateApplicationName = affiliateApplicationName;
 				_identifier = identifier;
 				Properties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 			}
@@ -75,7 +75,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				try
 				{
 					var ssoConfigStore = new ISSOConfigStore();
-					ssoConfigStore.DeleteConfigInfo(_name, _identifier);
+					ssoConfigStore.DeleteConfigInfo(_affiliateApplicationName, _identifier);
 				}
 				catch (COMException exception)
 				{
@@ -94,12 +94,12 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				{
 					// populate dictionary with all properties
 					var mapper = new ISSOMapper2();
-					mapper.GetFieldInfo(_name, out var labels, out _);
+					mapper.GetFieldInfo(_affiliateApplicationName, out var labels, out _);
 					// skip contact, which is the 1st dummy field
 					labels.Where(l => l != AffiliateApplication.DEFAULT_CONTACT_INFO).ForEach(l => Properties.Add(l, default));
 					// populate dictionary with all values
 					var configStore = new ISSOConfigStore();
-					configStore.GetConfigInfo(_name, _identifier, SSOFlag.SSO_FLAG_RUNTIME, this);
+					configStore.GetConfigInfo(_affiliateApplicationName, _identifier, SSOFlag.SSO_FLAG_RUNTIME, this);
 				}
 				catch (COMException exception)
 				{
@@ -119,7 +119,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				{
 					try
 					{
-						configStore.SetConfigInfo(_name, _identifier, this);
+						configStore.SetConfigInfo(_affiliateApplicationName, _identifier, this);
 						break;
 					}
 					catch (COMException exception)
@@ -133,8 +133,8 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				}
 			}
 
+			private readonly string _affiliateApplicationName;
 			private readonly string _identifier;
-			private readonly string _name;
 		}
 
 		#endregion
