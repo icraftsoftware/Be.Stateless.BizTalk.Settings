@@ -149,6 +149,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 					configStoreProperties.Load();
 					return configStoreProperties;
 				});
+			_propertyNames = Array.Empty<string>();
 		}
 
 		public string Identifier { get; }
@@ -173,23 +174,16 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			if (!IsDefault) throw new InvalidOperationException($"Cannot save or overwrite the properties of a {nameof(ConfigStore)} other than the default one.");
 			var ssoAdmin = new ISSOAdmin();
-			_lazyConfigStoreProperties.Value.Properties.Keys.ForEach(
-				key => {
-					try
-					{
-						ssoAdmin.CreateFieldInfo(_affiliateApplicationName, key, SSOFlag.SSO_FLAG_NONE);
-					}
-					catch (COMException exception)
-					{
-						// Error Code = 'The field already exists.'
-						if ((uint) exception.ErrorCode != 0xC0002A06) throw;
-					}
-				});
+			_lazyConfigStoreProperties.Value.Properties.Keys
+				.Where(key => !_propertyNames.Contains(key))
+				.ForEach(key => { ssoAdmin.CreateFieldInfo(_affiliateApplicationName, key, SSOFlag.SSO_FLAG_NONE); });
 			ssoAdmin.UpdateApplication(_affiliateApplicationName, null, null, null, null, SSOFlag.SSO_FLAG_ENABLED, SSOFlag.SSO_FLAG_ENABLED);
 			_lazyConfigStoreProperties.Value.Save();
+			_propertyNames = _lazyConfigStoreProperties.Value.Properties.Keys.ToArray();
 		}
 
 		private readonly string _affiliateApplicationName;
 		private readonly Lazy<ConfigStoreProperties> _lazyConfigStoreProperties;
+		private IEnumerable<string> _propertyNames;
 	}
 }
