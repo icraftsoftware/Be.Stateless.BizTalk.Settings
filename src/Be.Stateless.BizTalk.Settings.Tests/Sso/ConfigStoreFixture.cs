@@ -90,13 +90,13 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			try
 			{
-				var nonexistentConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				nonexistentConfigStore.Properties["Key1"] = "Value1";
-				nonexistentConfigStore.Properties["Key2"] = "Value2";
-				nonexistentConfigStore.Save();
+				var newConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				newConfigStore.Properties["Key1"] = "Value1";
+				newConfigStore.Properties["Key2"] = "Value2";
+				newConfigStore.Save();
 
-				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.Properties.Should().NotBeEmpty();
+				var existentConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				existentConfigStore.Properties.Should().NotBeEmpty();
 			}
 			finally
 			{
@@ -110,8 +110,8 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
 				.First(s => s.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO);
 			affiliateApplication.ConfigStores.Should().NotBeEmpty();
-			var configStore = affiliateApplication.ConfigStores.Values.First();
-			configStore.Properties.Should().NotBeEmpty();
+			var existentConfigStore = affiliateApplication.ConfigStores.Values.First();
+			existentConfigStore.Properties.Should().NotBeEmpty();
 		}
 
 		[Fact]
@@ -133,59 +133,6 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, Guid.NewGuid().ToString("B"));
 			configStore.Properties.Should().BeEmpty();
-		}
-
-		[Fact]
-		public void SaveExistentDefaultConfigStore()
-		{
-			try
-			{
-				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.Properties.Should().BeEmpty();
-				configStore.Properties["Key1"] = "Value1";
-				configStore.Properties["Key2"] = "Value2";
-				configStore.Save();
-
-				configStore.Properties["Key1"] = "Value3";
-				configStore.Properties["Key2"] = "Value4";
-				configStore.Save();
-
-				var configStore2 = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore2.Properties.Should().NotContainValues("Value1", "Value2");
-				configStore2.Properties.Should().BeEquivalentTo(configStore.Properties);
-			}
-			finally
-			{
-				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.Delete();
-			}
-		}
-
-		[Fact]
-		public void SaveExistentDefaultConfigStoreWithNewProperty()
-		{
-			try
-			{
-				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.Properties.Should().BeEmpty();
-				configStore.Properties["Key1"] = "Value1";
-				configStore.Properties["Key2"] = "Value2";
-				configStore.Save();
-
-				configStore.Properties["Key1"] = "Value3";
-				configStore.Properties["Key2"] = "Value4";
-				configStore.Properties["Key9"] = "Value9";
-				configStore.Save();
-
-				var configStore2 = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore2.Properties.Should().NotContainValues("Value1", "Value2");
-				configStore2.Properties.Should().BeEquivalentTo(configStore.Properties);
-			}
-			finally
-			{
-				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.Delete();
-			}
 		}
 
 		[Fact]
@@ -215,8 +162,8 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				configStore.Properties["Key2"] = "Value2";
 				configStore.Save();
 
-				var configStore2 = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore2.Properties.Should().BeEquivalentTo(configStore.Properties);
+				var reloadConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				reloadConfigStore.Properties.Should().BeEquivalentTo(configStore.Properties);
 			}
 			finally
 			{
@@ -233,6 +180,64 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			act.Should()
 				.Throw<InvalidOperationException>()
 				.WithMessage("Cannot save or overwrite the properties of a ConfigStore other than the default one.");
+		}
+
+		[Fact]
+		public void UpdateExistentDefaultConfigStoreWithNewProperty()
+		{
+			try
+			{
+				var newConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				newConfigStore.Properties.Should().BeEmpty();
+				newConfigStore.Properties["Key1"] = "Value1";
+				newConfigStore.Properties["Key2"] = "Value2";
+				newConfigStore.Save();
+
+				var existentConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				existentConfigStore.Properties.Should().BeEquivalentTo(newConfigStore.Properties);
+				existentConfigStore.Properties["Key1"] = "Value3";
+				existentConfigStore.Properties["Key2"] = "Value4";
+				existentConfigStore.Properties["Key9"] = "Value9";
+				existentConfigStore.Save();
+
+				var reloadConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				reloadConfigStore.Properties.Should().NotContainValues("Value1", "Value2");
+				reloadConfigStore.Properties.Should().ContainKeys("Key1", "Key2", "Key9");
+				reloadConfigStore.Properties.Should().BeEquivalentTo(existentConfigStore.Properties);
+			}
+			finally
+			{
+				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				configStore.Delete();
+			}
+		}
+
+		[Fact]
+		public void UpdateExistentDefaultConfigStoreWithValueUpdates()
+		{
+			try
+			{
+				var newConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				newConfigStore.Properties.Should().BeEmpty();
+				newConfigStore.Properties["Key1"] = "Value1";
+				newConfigStore.Properties["Key2"] = "Value2";
+				newConfigStore.Save();
+
+				var existentConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				existentConfigStore.Properties.Should().BeEquivalentTo(newConfigStore.Properties);
+				existentConfigStore.Properties["Key1"] = "Value3";
+				existentConfigStore.Properties["Key2"] = "Value4";
+				existentConfigStore.Save();
+
+				var reloadConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				reloadConfigStore.Properties.Should().NotContainValues("Value1", "Value2");
+				reloadConfigStore.Properties.Should().BeEquivalentTo(existentConfigStore.Properties);
+			}
+			finally
+			{
+				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				configStore.Delete();
+			}
 		}
 
 		public ConfigStoreFixture()

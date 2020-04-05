@@ -147,9 +147,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				() => {
 					var configStoreProperties = new ConfigStoreProperties(affiliateApplicationName, configStoreIdentifier);
 					configStoreProperties.Load();
+					_propertyNames = configStoreProperties.Properties.Keys.ToArray();
 					return configStoreProperties;
 				});
-			_propertyNames = Array.Empty<string>();
 		}
 
 		public string Identifier { get; }
