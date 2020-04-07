@@ -103,7 +103,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// By default, only the <see cref="AffiliateApplication"/>s that have been associated to <see
 		/// cref="DEFAULT_CONTACT_INFO"/> will be retrieved. If <paramref name="contact"/> is <see cref="ANY_CONTACT_INFO"/> all
 		/// the <see cref="AffiliateApplication"/>s will be returned, regardless of whether they have been created by
-      /// BizTalk.Factory's <see cref="AffiliateApplication"/>.<see cref="Create"/> factory method; that is to say, regardless
+		/// BizTalk.Factory's <see cref="AffiliateApplication"/>.<see cref="Create"/> factory method; that is to say, regardless
 		/// of their <see cref="Contact"/>.
 		/// </remarks>
 		[SuppressMessage("ReSharper", "BitwiseOperatorOnEnumWithoutFlags")]
@@ -161,6 +161,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 		private AffiliateApplication()
 		{
+			// rely on lazy initialization to provide thread-safe instantiation
 			_lazyConfigStoreCollection = new Lazy<ConfigStoreCollection>(() => new ConfigStoreCollection(this));
 		}
 

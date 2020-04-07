@@ -42,7 +42,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			#region IPropertyBag Members
 
 			/// <summary>
-			/// Reads the valuer for the specified propName of the property.
+			/// Reads the value of the specified propName from the Config Store.
 			/// </summary>
 			/// <param name="propName">Name of the property.</param>
 			/// <param name="ptrVar">Value of the property.</param>
@@ -53,7 +53,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			}
 
 			/// <summary>
-			/// Writes the ptrVar for the specified propName of the property.
+			/// Writes ptrVar as the value of the specified propName to the Config Store.
 			/// </summary>
 			/// <param name="propName">Name of the property.</param>
 			/// <param name="ptrVar">Value of the property.</param>
@@ -89,15 +89,32 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			/// </summary>
 			internal void Load()
 			{
-				// TODO reload the ConfigStore if older than 60 seconds but ?? what if property dictionary is dirty ??
 				try
 				{
-					// populate dictionary with all properties
+					// provision the dictionary with the names of all the properties that are defined at the affiliate application level
 					var mapper = new ISSOMapper2();
 					mapper.GetFieldInfo(_affiliateApplicationName, out var labels, out _);
-					// skip contact, which is the 1st dummy field
+					// skip contact, which is a dummy 1st field
 					labels.Where(l => l != AffiliateApplication.DEFAULT_CONTACT_INFO).ForEach(l => Properties.Add(l, default));
-					// populate dictionary with all values
+					// populate dictionary with all the property values that have been set
+					var configStore = new ISSOConfigStore();
+					configStore.GetConfigInfo(_affiliateApplicationName, _identifier, SSOFlag.SSO_FLAG_RUNTIME, this);
+				}
+				catch (COMException exception)
+				{
+					// Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
+					if ((uint) exception.ErrorCode != 0xC0002A05) throw;
+				}
+			}
+
+			/// <summary>
+			/// Reloads the Config Store with fresh values from the Enterprise Single Sign-On (SSO).
+			/// </summary>
+			internal void Reload()
+			{
+				try
+				{
+					// reload dot not need to provision the dictionary with the names of all the properties but only to populate it with fresh values
 					var configStore = new ISSOConfigStore();
 					configStore.GetConfigInfo(_affiliateApplicationName, _identifier, SSOFlag.SSO_FLAG_RUNTIME, this);
 				}
@@ -143,6 +160,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			_affiliateApplicationName = affiliateApplicationName ?? throw new ArgumentNullException(nameof(affiliateApplicationName));
 			Identifier = configStoreIdentifier ?? throw new ArgumentNullException(nameof(configStoreIdentifier));
+			// rely on lazy initialization to provide thread-safe instantiation
 			_lazyConfigStoreProperties = new Lazy<ConfigStoreProperties>(
 				() => {
 					var configStoreProperties = new ConfigStoreProperties(affiliateApplicationName, configStoreIdentifier);
@@ -165,6 +183,14 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			if (!IsDefault) throw new InvalidOperationException($"Cannot delete a {nameof(ConfigStore)} other than the default one.");
 			_lazyConfigStoreProperties.Value.Delete();
+		}
+
+		/// <summary>
+		/// Reloads the Config Store with fresh values from the Enterprise Single Sign-On (SSO).
+		/// </summary>
+		public void Reload()
+		{
+			_lazyConfigStoreProperties.Value.Reload();
 		}
 
 		/// <summary>

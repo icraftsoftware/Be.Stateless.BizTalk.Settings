@@ -28,13 +28,6 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 	public class ConfigStoreFixture : IDisposable
 	{
 		[Fact]
-		public void ConfigStoreIsReloadedAfter60Seconds()
-		{
-			true.Should().BeFalse("TODO");
-			// TODO ?? what if property dictionary is dirty ??
-		}
-
-		[Fact]
 		public void DefaultConfigStoreIsInitiallyEmpty()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
