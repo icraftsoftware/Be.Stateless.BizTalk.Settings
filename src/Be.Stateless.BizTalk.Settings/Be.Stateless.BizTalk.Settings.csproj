@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <RootNamespace>Be.Stateless.BizTalk.Settings</RootNamespace>
+    <RootNamespace>Be.Stateless.BizTalk</RootNamespace>
     <AssemblyTitle>Be.Stateless.BizTalk.Settings</AssemblyTitle>
     <Description>BizTalk Factory's SSO settings object model.</Description>
   </PropertyGroup>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <RootNamespace>Be.Stateless.BizTalk.Settings</RootNamespace>
+    <RootNamespace>Be.Stateless.BizTalk</RootNamespace>
     <AssemblyTitle>Be.Stateless.BizTalk.Settings.Tests</AssemblyTitle>
     <Description>Unit testing of BizTalk Factory's SSO settings reader.</Description>
   </PropertyGroup>
