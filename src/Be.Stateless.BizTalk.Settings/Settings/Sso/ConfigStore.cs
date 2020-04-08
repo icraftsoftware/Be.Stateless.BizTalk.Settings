@@ -165,16 +165,29 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				() => {
 					var configStoreProperties = new ConfigStoreProperties(affiliateApplicationName, configStoreIdentifier);
 					configStoreProperties.Load();
+					_timestamp = DateTimeOffset.UtcNow;
 					_propertyNames = configStoreProperties.Properties.Keys.ToArray();
 					return configStoreProperties;
 				});
 		}
+
+		/// <summary>
+		/// Elapsed time since the application settings were last refreshed or, more generally, synchronized with the Enterprise
+		/// Single Sign-On (SSO) Config Store.
+		/// </summary>
+		public TimeSpan Age => DateTimeOffset.UtcNow.Subtract(_timestamp);
 
 		public string Identifier { get; }
 
 		public IDictionary<string, object> Properties => _lazyConfigStoreProperties.Value.Properties;
 
 		private bool IsDefault => Identifier == ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER;
+
+		public ConfigStore AgedLessThan(TimeSpan elapsedTime)
+		{
+			if (_lazyConfigStoreProperties.IsValueCreated && Age > elapsedTime) Reload();
+			return this;
+		}
 
 		/// <summary>
 		/// Deletes the application settings, i.e the Enterprise Single Sign-On (SSO) Config Store.
@@ -183,6 +196,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			if (!IsDefault) throw new InvalidOperationException($"Cannot delete a {nameof(ConfigStore)} other than the default one.");
 			_lazyConfigStoreProperties.Value.Delete();
+			_timestamp = default;
 		}
 
 		/// <summary>
@@ -191,6 +205,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void Reload()
 		{
 			_lazyConfigStoreProperties.Value.Reload();
+			_timestamp = DateTimeOffset.UtcNow;
 		}
 
 		/// <summary>
@@ -205,11 +220,13 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				.ForEach(key => { ssoAdmin.CreateFieldInfo(_affiliateApplicationName, key, SSOFlag.SSO_FLAG_NONE); });
 			ssoAdmin.UpdateApplication(_affiliateApplicationName, null, null, null, null, SSOFlag.SSO_FLAG_ENABLED, SSOFlag.SSO_FLAG_ENABLED);
 			_lazyConfigStoreProperties.Value.Save();
+			_timestamp = DateTimeOffset.UtcNow;
 			_propertyNames = _lazyConfigStoreProperties.Value.Properties.Keys.ToArray();
 		}
 
 		private readonly string _affiliateApplicationName;
 		private readonly Lazy<ConfigStoreProperties> _lazyConfigStoreProperties;
 		private IEnumerable<string> _propertyNames;
+		private DateTimeOffset _timestamp;
 	}
 }

@@ -129,6 +129,26 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		}
 
 		[Fact]
+		[SuppressMessage("ReSharper", "StringLiteralTypo")]
+		public void PropertyNameIsCaseInsensitive()
+		{
+			try
+			{
+				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				configStore.Properties.Should().BeEmpty();
+				configStore.Properties["PropertyNameWithCasing"] = "Value1";
+				configStore.Save();
+
+				configStore.Properties["propertynamewithcasing"].Should().Be("Value1");
+			}
+			finally
+			{
+				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				configStore.Delete();
+			}
+		}
+
+		[Fact]
 		public void SaveExistentNonDefaultConfigStoreThrows()
 		{
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
