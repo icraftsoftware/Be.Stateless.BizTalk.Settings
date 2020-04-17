@@ -36,10 +36,10 @@
 
   <ItemGroup>
     <PackageReference Include="Be.Stateless.BizTalk.Common" Version="2.0.20098.41063" />
-    <PackageReference Include="Be.Stateless.Extensions" Version="2.0.20098.5572" />
-    <PackageReference Include="BizTalk.Server.2020.Runtime" Version="1.0.0">
+    <PackageReference Include="Be.Stateless.Extensions" Version="2.0.20105.50476" />
+    <PackageReference Include="BizTalk.Server.2020.Runtime" Version="1.0.1">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; compile; build; native; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
