@@ -27,6 +27,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 	/// <summary>
 	/// Dictionary of <see cref="ConfigStore"/>s associated to a given <see cref="AffiliateApplication"/>.
 	/// </summary>
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "<Pending>")]
 	public sealed class ConfigStoreCollection : IReadOnlyDictionary<string, ConfigStore>
 	{
 		internal ConfigStoreCollection(AffiliateApplication affiliateApplication)
