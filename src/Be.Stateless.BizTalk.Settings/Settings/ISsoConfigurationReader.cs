@@ -26,8 +26,8 @@ namespace Be.Stateless.BizTalk.Settings
 	/// cref="ConfigStore"/> stored by the Enterprise Single Sign-On (SSO) server database.
 	/// </summary>
 	/// <remarks>
-	/// This interface essentially exists to provide the ability to inject an <see cref="ISsoConfigurationReader"/> mock the sake
-	/// of unit testing; see <see cref="SsoConfigurationReader.Instance">SsoConfigurationReader.Instance</see>.
+	/// This interface essentially exists to provide the ability to inject an <see cref="ISsoConfigurationReader"/> mock for the
+	/// sake of unit testing; see <see cref="SsoConfigurationReader.Instance">SsoConfigurationReader.Instance</see>.
 	/// </remarks>
 	/// <seealso cref="AffiliateApplication.ConfigStores">AffiliateApplication.ConfigStores</seealso>
 	/// <seealso cref="ConfigStoreCollection.Default">ConfigStoreCollection.Default</seealso>

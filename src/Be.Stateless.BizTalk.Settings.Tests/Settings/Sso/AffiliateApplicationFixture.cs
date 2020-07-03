@@ -95,7 +95,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			act.Should()
 				.Throw<InvalidOperationException>()
 				.WithMessage(
-					$"To avoid any destructive effects, you cannot delete an {nameof(AffiliateApplication)} that has not been created by BizTalk.Factory or that has another {nameof(ConfigStore)} than the default one.");
+					$"To prevent any destructive effects, BizTalk.Factory will not delete an {nameof(AffiliateApplication)} that it has not created or that has other {nameof(ConfigStore)}s than the default one.");
 		}
 
 		[Fact]
@@ -122,7 +122,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				act.Should()
 					.Throw<InvalidOperationException>()
 					.WithMessage(
-						$"To avoid any destructive effects, you cannot delete an {nameof(AffiliateApplication)} that has not been created by BizTalk.Factory or that has another {nameof(ConfigStore)} than the default one.");
+						$"To prevent any destructive effects, BizTalk.Factory will not delete an {nameof(AffiliateApplication)} that it has not created or that has other {nameof(ConfigStore)}s than the default one.");
 
 				otherConfigStore.Delete();
 			}

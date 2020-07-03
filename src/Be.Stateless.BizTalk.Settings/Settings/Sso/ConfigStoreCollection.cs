@@ -1,13 +1,13 @@
 ﻿#region Copyright & License
 
 // Copyright © 2012 - 2020 François Chabot
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,7 +83,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// </summary>
 		public ConfigStore Default => _configStoreDictionary.TryGetValue(DEFAULT_CONFIG_STORE_IDENTIFIER, out var store) ? store : null;
 
-		internal bool ContainsOnlyDefaultConfigStore => Keys.All(key => key == DEFAULT_CONFIG_STORE_IDENTIFIER);
+		internal bool ContainsForeignConfigStores => Keys.Any(key => key != DEFAULT_CONFIG_STORE_IDENTIFIER);
 
 		internal const string DEFAULT_CONFIG_STORE_IDENTIFIER = "{86ca4d07-f4da-4386-9ed4-dab5b83b9e8b}";
 		private readonly IReadOnlyDictionary<string, ConfigStore> _configStoreDictionary;

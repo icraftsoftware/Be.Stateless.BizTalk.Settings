@@ -133,14 +133,16 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		}
 
 		/// <summary>
-		/// Finds and returns an <see cref="AffiliateApplication"/> by name in the Enterprise Single Sign-On (SSO) server database.
+		/// Finds and returns an <see cref="AffiliateApplication"/> by name in the Enterprise Single Sign-On (SSO) server
+		/// database.
 		/// </summary>
 		/// <param name="name">
 		/// The name of the <see cref="AffiliateApplication"/> to find in Enterprise Single Sign-On (SSO) server database.
 		/// </param>
 		/// <returns>
 		/// The <see cref="AffiliateApplication"/> currently deployed in the Enterprise Single Sign-On (SSO) server database.
-		/// <c>null</c> if the <see cref="AffiliateApplication"/> does not exist in Enterprise Single Sign-On (SSO) server database.
+		/// <c>null</c> if the <see cref="AffiliateApplication"/> does not exist in Enterprise Single Sign-On (SSO) server
+		/// database.
 		/// </returns>
 		public static AffiliateApplication FindByName(string name)
 		{
@@ -211,9 +213,10 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// </summary>
 		public void Delete()
 		{
-			if (!HasOwnership || !_lazyConfigStoreCollection.Value.ContainsOnlyDefaultConfigStore)
+			if (!HasOwnership || _lazyConfigStoreCollection.Value.ContainsForeignConfigStores)
 				throw new InvalidOperationException(
-					$"To avoid any destructive effects, you cannot delete an {nameof(AffiliateApplication)} that has not been created by BizTalk.Factory or that has another {nameof(ConfigStore)} than the default one.");
+					$"To prevent any destructive effects, BizTalk.Factory will not delete an {nameof(AffiliateApplication)} "
+					+ $"that it has not created or that has other {nameof(ConfigStore)}s than the default one.");
 			var ssoAdmin = new ISSOAdmin();
 			ssoAdmin.DeleteApplication(Name);
 		}

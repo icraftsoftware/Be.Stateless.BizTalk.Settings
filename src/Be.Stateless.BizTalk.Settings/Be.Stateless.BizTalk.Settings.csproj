@@ -36,7 +36,7 @@
 
   <ItemGroup>
     <PackageReference Include="Be.Stateless.BizTalk.Common" Version="2.0.20136.36474" />
-    <PackageReference Include="Be.Stateless.Extensions" Version="2.0.20113.36957" />
+    <PackageReference Include="Be.Stateless.Extensions" Version="2.0.20183.50833" />
     <PackageReference Include="BizTalk.Server.2020.Runtime" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; compile; build; native; analyzers; buildtransitive</IncludeAssets>

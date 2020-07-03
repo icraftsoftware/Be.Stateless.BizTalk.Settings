@@ -39,8 +39,8 @@ namespace Be.Stateless.BizTalk.Settings
 		/// Provides an internal property setter for the sake of mocking and unit testing.
 		/// </para>
 		/// <para>
-		/// Notice that to circumvent the internal visibility of the <see cref="Instance"/> property setter for clients outside of
-		/// the realm of BizTalk.Factory, the <c>Be.Stateless.BizTalk.Unit</c> assembly, which is not GAC deployed, provides a
+		/// Notice that to circumvent the internal visibility of the <see cref="Instance"/> property setter for clients outside
+		/// of the realm of BizTalk.Factory, the <c>Be.Stateless.BizTalk.Unit</c> assembly, which is not GAC deployed, provides a
 		/// public setter for the <see cref="Instance"/> property that allows clients of this library to safely inject an <see
 		/// cref="ISsoConfigurationReader"/> mock for the only sake of unit testing.
 		/// </para>
