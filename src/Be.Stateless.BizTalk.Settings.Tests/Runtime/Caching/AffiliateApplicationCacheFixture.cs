@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Be.Stateless.BizTalk.Settings.Sso;
 using FluentAssertions;
 using Xunit;
@@ -26,9 +27,10 @@ namespace Be.Stateless.BizTalk.Runtime.Caching
 	public class AffiliateApplicationCacheFixture
 	{
 		[Fact]
+		[SuppressMessage("ReSharper", "NotAccessedVariable")]
 		public void CacheThrowsIfAffiliateApplicationDoesNotExist()
 		{
-			var name = "NonexistentApplication";
+			const string name = "NonexistentApplication";
 			AffiliateApplication application;
 			Action act = () => application = AffiliateApplicationCache.Instance[name];
 			act.Should()

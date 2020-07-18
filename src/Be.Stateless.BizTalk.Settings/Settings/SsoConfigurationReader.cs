@@ -67,6 +67,8 @@ namespace Be.Stateless.BizTalk.Settings
 
 		#endregion
 
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
+		// ReSharper disable once MemberCanBePrivate.Global, relied upon by unit tests
 		internal static TimeSpan MaxAge = TimeSpan.FromSeconds(60);
 	}
 }

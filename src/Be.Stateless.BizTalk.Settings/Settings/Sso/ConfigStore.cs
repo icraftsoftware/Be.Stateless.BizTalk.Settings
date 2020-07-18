@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Be.Stateless.Linq.Extensions;
@@ -25,7 +26,6 @@ using Microsoft.EnterpriseSingleSignOn.Interop;
 
 namespace Be.Stateless.BizTalk.Settings.Sso
 {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix")]
 	public sealed class ConfigStore
 	{
 		#region Nested Type: ConfigStoreProperties
@@ -175,6 +175,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// Elapsed time since the application settings were last refreshed or, more generally, synchronized with the Enterprise
 		/// Single Sign-On (SSO) Config Store.
 		/// </summary>
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
 		public TimeSpan Age => DateTimeOffset.UtcNow.Subtract(_timestamp);
 
 		public string Identifier { get; }
@@ -202,6 +203,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// <summary>
 		/// Reloads the Config Store with fresh values from the Enterprise Single Sign-On (SSO).
 		/// </summary>
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
 		public void Reload()
 		{
 			_lazyConfigStoreProperties.Value.Reload();

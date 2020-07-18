@@ -54,6 +54,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// </remarks>
 		/// <seealso href="https://docs.microsoft.com/en-us/biztalk/core/how-to-create-and-describe-an-application-to-single-sign-on">How to Create and Describe an Application to Single Sign-On</seealso>
 		/// <seealso href="https://github.com/MicrosoftDocs/biztalk-docs/blob/master/technical-reference/issoadmin-createapplication-method.md">ISSOAdmin.CreateApplication Method</seealso>
+		[SuppressMessage("ReSharper", "CommentTypo")]
 		public static AffiliateApplication Create(
 			string name,
 			string userGroup = DEFAULT_USER_GROUP_NAME,
@@ -170,6 +171,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// <summary>
 		/// The application Administrators group name.
 		/// </summary>
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
 		public string AdministratorGroup { get; private set; }
 
 		/// <summary>
@@ -185,6 +187,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// <summary>
 		/// The application description.
 		/// </summary>
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
 		public string Description { get; private set; }
 
 		/// <summary>
@@ -195,6 +198,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// <summary>
 		/// The application Users group name.
 		/// </summary>
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
 		public string UserGroup { get; private set; }
 
 		/// <summary>

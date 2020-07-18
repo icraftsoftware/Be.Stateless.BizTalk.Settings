@@ -30,7 +30,7 @@ namespace Be.Stateless.BizTalk.Settings
 		[Fact]
 		public void ReadEnsuresConfigStoreIsAlwaysFresh()
 		{
-			var name = nameof(SsoConfigurationReaderFixture) + ".fresh";
+			const string name = nameof(SsoConfigurationReaderFixture) + ".fresh";
 			try
 			{
 				var application = AffiliateApplication.FindByName(name) ?? AffiliateApplication.Create(name);
@@ -61,8 +61,8 @@ namespace Be.Stateless.BizTalk.Settings
 		[Fact]
 		public void ReadFromSeveralAffiliateApplications()
 		{
-			var name1 = nameof(SsoConfigurationReaderFixture) + ".one";
-			var name2 = nameof(SsoConfigurationReaderFixture) + ".two";
+			const string name1 = nameof(SsoConfigurationReaderFixture) + ".one";
+			const string name2 = nameof(SsoConfigurationReaderFixture) + ".two";
 			try
 			{
 				var application1 = AffiliateApplication.FindByName(name1) ?? AffiliateApplication.Create(name1);
@@ -86,7 +86,7 @@ namespace Be.Stateless.BizTalk.Settings
 		[Fact]
 		public void ReadThrowsIfAffiliateApplicationDoesNotExist()
 		{
-			var name = "NonexistentApplication";
+			const string name = "NonexistentApplication";
 			Action act = () => SsoConfigurationReader.Instance.Read(name, "property");
 			act.Should()
 				.Throw<InvalidOperationException>()
@@ -107,7 +107,7 @@ namespace Be.Stateless.BizTalk.Settings
 		[Fact]
 		public void ReadThrowsIfPropertyDoesNotExist()
 		{
-			var name = nameof(SsoConfigurationReaderFixture) + ".miss";
+			const string name = nameof(SsoConfigurationReaderFixture) + ".miss";
 			try
 			{
 				var application = AffiliateApplication.FindByName(name) ?? AffiliateApplication.Create(name);
