@@ -14,3 +14,4 @@ extends:
     ProjectOrSolutionPath: "$(Build.SourcesDirectory)/Be.Stateless.BizTalk.Settings.sln"
     Major: 2
     Minor: 0
+    SkiptTest: true
