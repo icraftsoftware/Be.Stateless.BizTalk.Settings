@@ -39,9 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Be.Stateless.BizTalk.Abstractions" Version="2.0.20199.24939" />
-    <PackageReference Include="Be.Stateless.Extensions" Version="2.0.20196.40210" />
-    <PackageReference Include="BizTalk.Server.2020.Runtime" Version="1.0.2">
+    <PackageReference Include="Be.Stateless.BizTalk.Abstractions" Version="2.0.20223.35222" />
+    <PackageReference Include="Be.Stateless.Extensions" Version="2.0.20223.28518" />
+    <PackageReference Include="BizTalk.Server.2020.Runtime" Version="1.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; compile; build; native; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
