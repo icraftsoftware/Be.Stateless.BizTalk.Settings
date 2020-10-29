@@ -96,6 +96,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 					mapper.GetFieldInfo(_affiliateApplicationName, out var labels, out _);
 					// skip contact, which is a dummy 1st field
 					labels.Where(l => l != AffiliateApplication.DEFAULT_CONTACT_INFO).ForEach(l => Properties.Add(l, default));
+
+					EnsureSettingsExists();
+
 					// populate dictionary with all the property values that have been set
 					var configStore = new ISSOConfigStore();
 					configStore.GetConfigInfo(_affiliateApplicationName, _identifier, SSOFlag.SSO_FLAG_RUNTIME, this);
@@ -106,6 +109,14 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 					if ((uint) exception.ErrorCode != 0xC0002A05) throw;
 				}
 			}
+
+            private void EnsureSettingsExists()
+            {
+				if(_identifier != ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER) return;
+                
+				if(!Properties.Keys.Contains(AffiliateApplication.DEFAULT_SETTINGS_KEY))
+					Properties.Add(AffiliateApplication.DEFAULT_SETTINGS_KEY, default);
+            }
 
 			/// <summary>
 			/// Reloads the Config Store with fresh values from the Enterprise Single Sign-On (SSO).
