@@ -224,6 +224,8 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// <summary>
 		/// Saves the application settings, i.e the Enterprise Single Sign-On (SSO) Config Store.
 		/// </summary>
+		/// <remarks>Save does not need to be thread-safe because only a single process run by a 'BizTalk administrator' user can call save.
+		/// otherwise a COM exception will occurs.</remarks>
 		public void Save()
 		{
 			if (!IsDefault) throw new InvalidOperationException($"Cannot save or overwrite the properties of a {nameof(ConfigStore)} other than the default one.");
