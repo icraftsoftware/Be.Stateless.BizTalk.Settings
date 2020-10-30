@@ -111,8 +111,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
         public void LoadNonexistentDefaultConfigStore()
         {
             var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-            configStore.Properties.Count().Should().Be(1);
-            configStore.Properties.Keys.Contains(AffiliateApplication.DEFAULT_SETTINGS_KEY).Should().BeTrue();
+            configStore.SettingsShouldBeInitialized();
         }
 
         [Fact]
@@ -275,8 +274,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
     {
         public static void SettingsShouldBeInitialized(this ConfigStore store)
         {
-            store.Properties.Count.Should().Be(1);
-            store.Properties.Keys.Should().Contain(AffiliateApplication.DEFAULT_SETTINGS_KEY);
+            store.Properties.Count.Should().Be(0);
         }
     }
 }
