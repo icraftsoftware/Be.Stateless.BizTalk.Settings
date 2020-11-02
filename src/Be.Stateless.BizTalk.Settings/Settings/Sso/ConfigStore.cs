@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Be.Stateless.Linq.Extensions;
 using Microsoft.EnterpriseSingleSignOn.Interop;
 using Newtonsoft.Json;
@@ -81,7 +82,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
                 catch (COMException exception)
                 {
                     // Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
-                    if ((uint)exception.ErrorCode != 0xC0002A05) throw;
+                    if ((uint) exception.ErrorCode != 0xC0002A05) throw;
                 }
             }
 
@@ -105,7 +106,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
                 catch (COMException exception)
                 {
                     // Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
-                    if ((uint)exception.ErrorCode != 0xC0002A05) throw;
+                    if ((uint) exception.ErrorCode != 0xC0002A05) throw;
                 }
             }
 
@@ -123,7 +124,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
                 catch (COMException exception)
                 {
                     // Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
-                    if ((uint)exception.ErrorCode != 0xC0002A05) throw;
+                    if ((uint) exception.ErrorCode != 0xC0002A05) throw;
                 }
             }
 
@@ -146,7 +147,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
                         // see https://github.com/BTDF/DeploymentFramework/blob/4f047b6ac7067d369365c8776aefe3f4958278a7/src/Tools/SSOSettingsFileImport/SSOSettingsFileImport/SSOHelper.cs#L75
                         // This error occurs randomly and in virtually all cases, an immediate retry succeeds.
                         // Error Code = 'The external credentials in the SSO database are more recent.'
-                        if ((uint)exception.ErrorCode != 0xC0002A40) throw;
+                        if ((uint) exception.ErrorCode != 0xC0002A40) throw;
                         if (++retryCount >= 5) throw;
                     }
                 }
@@ -162,19 +163,6 @@ namespace Be.Stateless.BizTalk.Settings.Sso
         {
             _affiliateApplicationName = affiliateApplicationName ?? throw new ArgumentNullException(nameof(affiliateApplicationName));
             Identifier = configStoreIdentifier ?? throw new ArgumentNullException(nameof(configStoreIdentifier));
-            // rely on lazy initialization to provide thread-safe instantiation
-            _lazyConfigStoreProperties = new Lazy<ConfigStoreProperties>(
-                () =>
-                {
-                    var configStoreProperties = new ConfigStoreProperties(affiliateApplicationName, configStoreIdentifier);
-                    configStoreProperties.Load();
-                    _timestamp = DateTimeOffset.UtcNow;
-                    _settingsFieldExists = configStoreProperties.Properties.ContainsKey(AffiliateApplication.DEFAULT_SETTINGS_KEY);
-
-                    return configStoreProperties;
-                });
-
-            _settings = new Lazy<IDictionary<string, object>>(DeserializeProperties);
         }
 
         /// <summary>
@@ -186,13 +174,35 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
         public string Identifier { get; }
 
-        public IDictionary<string, object> Properties => IsDefault ? _settings.Value : _lazyConfigStoreProperties.Value.Properties;
+        public IDictionary<string, object> Properties => IsDefault ? Settings : StoreProperties.Properties;
 
         private bool IsDefault => Identifier == ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER;
 
+        private IDictionary<string, object> Settings =>
+            LazyInitializer.EnsureInitialized(ref _settings, ref _settingsLoaded, ref _lock, DeserializeProperties);
+
+        private ConfigStoreProperties StoreProperties
+        {
+            get
+            {
+                return LazyInitializer.EnsureInitialized(
+                    ref _storeProperties,
+                    ref _propertiesLoaded,
+                    ref _lock,
+                    () => {
+                        var configStoreProperties = new ConfigStoreProperties(_affiliateApplicationName, Identifier);
+                        configStoreProperties.Load();
+                        _timestamp = DateTimeOffset.UtcNow;
+                        _settingsFieldExists = configStoreProperties.Properties.ContainsKey(AffiliateApplication.DEFAULT_SETTINGS_KEY);
+
+                        return configStoreProperties;
+                    });
+            }
+        }
+
         public ConfigStore AgedLessThan(TimeSpan elapsedTime)
         {
-            if (_lazyConfigStoreProperties.IsValueCreated && Age > elapsedTime) Reload();
+            if (_propertiesLoaded && Age > elapsedTime) Reload();
             return this;
         }
 
@@ -202,7 +212,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
         public void Delete()
         {
             if (!IsDefault) throw new InvalidOperationException($"Cannot delete a {nameof(ConfigStore)} other than the default one.");
-            _lazyConfigStoreProperties.Value.Delete();
+            StoreProperties.Delete();
             _timestamp = default;
         }
 
@@ -212,10 +222,12 @@ namespace Be.Stateless.BizTalk.Settings.Sso
         [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
         public void Reload()
         {
-            _lazyConfigStoreProperties.Value.Reload();
-            _settings.Value.Clear();
-            DeserializePropertiesInto(_settings.Value);
-            _timestamp = DateTimeOffset.UtcNow;
+            lock (_lock)
+            {
+                _settingsLoaded = false;
+                _propertiesLoaded = false;
+            }
+            StoreProperties.Reload();
         }
 
         /// <summary>
@@ -229,8 +241,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
             EnsureSettingsFieldExists();
 
-            _lazyConfigStoreProperties.Value.Properties[AffiliateApplication.DEFAULT_SETTINGS_KEY] = SerializeProperties();
-            _lazyConfigStoreProperties.Value.Save();
+            var store = StoreProperties;
+            store.Properties[AffiliateApplication.DEFAULT_SETTINGS_KEY] = SerializeProperties();
+            store.Save();
             _timestamp = DateTimeOffset.UtcNow;
         }
 
@@ -245,35 +258,34 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
         private string SerializeProperties()
         {
-            return JsonConvert.SerializeObject(_settings.Value);
+            return JsonConvert.SerializeObject(Settings);
         }
 
         private Dictionary<string, object> DeserializeProperties()
         {
+            // Serialized data have no information about OrdinalIgnoreCase
             var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            DeserializePropertiesInto(result);
-            return result;
-        }
 
-        private void DeserializePropertiesInto(IDictionary<string, object> target)
-        {
-            if (_lazyConfigStoreProperties.Value.Properties.TryGetValue(AffiliateApplication.DEFAULT_SETTINGS_KEY, out var settingsValue))
+            if (StoreProperties.Properties.TryGetValue(AffiliateApplication.DEFAULT_SETTINGS_KEY, out var settingsValue))
             {
                 var jsonSettingsValue = settingsValue as string;
 
                 if (!string.IsNullOrWhiteSpace(jsonSettingsValue))
                 {
                     var existingValues = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonSettingsValue);
-                    foreach (var kvp in existingValues)
-                        target.Add(kvp.Key, kvp.Value);
+                    foreach (var kvp in existingValues) result.Add(kvp.Key, kvp.Value);
                 }
             }
+            return result;
         }
 
         private readonly string _affiliateApplicationName;
-        private readonly Lazy<ConfigStoreProperties> _lazyConfigStoreProperties;
-        private readonly Lazy<IDictionary<string, object>> _settings;
+        private object _lock = new object();
+        private bool _propertiesLoaded;
+        private IDictionary<string, object> _settings;
         private bool _settingsFieldExists;
+        private bool _settingsLoaded;
+        private ConfigStoreProperties _storeProperties;
         private DateTimeOffset _timestamp;
     }
 }
