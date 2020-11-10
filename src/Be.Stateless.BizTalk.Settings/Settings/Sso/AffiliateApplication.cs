@@ -83,8 +83,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				application.AdministratorGroup,
 				SSOFlag.SSO_FLAG_APP_CONFIG_STORE | SSOFlag.SSO_FLAG_APP_ALLOW_LOCAL | SSOFlag.SSO_FLAG_SSO_WINDOWS_TO_EXTERNAL,
 				1);
+
 			ssoAdmin.CreateFieldInfo(name, application.Contact, SSOFlag.SSO_FLAG_NONE);
-			ssoAdmin.UpdateApplication(name, null, null, null, null, SSOFlag.SSO_FLAG_ENABLED, SSOFlag.SSO_FLAG_ENABLED);
+            ssoAdmin.UpdateApplication(name, null, null, null, null, SSOFlag.SSO_FLAG_ENABLED, SSOFlag.SSO_FLAG_ENABLED);
 
 			return application;
 		}
@@ -228,6 +229,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		[SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores")]
 		public const string ANY_CONTACT_INFO = "*";
 
+        internal const string DEFAULT_SETTINGS_KEY = "settings";
 		internal const string DEFAULT_CONTACT_INFO = "icraftsoftware@stateless.be";
 		private const string DEFAULT_ADMINISTRATOR_GROUP_NAME = "BizTalk Server Administrators";
 		private const string DEFAULT_USER_GROUP_NAME = "BizTalk Application Users";
