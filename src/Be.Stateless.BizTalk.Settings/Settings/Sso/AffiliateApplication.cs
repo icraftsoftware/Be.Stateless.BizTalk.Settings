@@ -156,9 +156,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			}
 			catch (COMException exception)
 			{
-				// Error Code = 'The application does not exist.'
-				// see https://weblog.west-wind.com/posts/2007/Apr/18/C-HRESULT-comparison
-				if ((uint) exception.ErrorCode == 0xC0002A04) return null;
+				if ((uint) exception.ErrorCode == (uint) HResult.ErrorApplicationNonExistent) return null;
 				throw;
 			}
 		}

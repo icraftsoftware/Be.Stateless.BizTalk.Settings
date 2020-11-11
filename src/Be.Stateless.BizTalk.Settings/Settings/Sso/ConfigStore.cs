@@ -82,8 +82,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				}
 				catch (COMException exception)
 				{
-					// Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
-					if ((uint) exception.ErrorCode != 0xC0002A05) throw;
+					if ((uint) exception.ErrorCode != (uint) HResult.ErrorMappingNonExistent) throw;
 				}
 			}
 
@@ -105,8 +104,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				}
 				catch (COMException exception)
 				{
-					// Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
-					if ((uint) exception.ErrorCode != 0xC0002A05) throw;
+					if ((uint) exception.ErrorCode != (uint) HResult.ErrorMappingNonExistent) throw;
 				}
 			}
 
@@ -123,8 +121,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				}
 				catch (COMException exception)
 				{
-					// Error Code = 'The mapping does not exist. For Config Store applications, the config info has not been set.'
-					if ((uint) exception.ErrorCode != 0xC0002A05) throw;
+					if ((uint) exception.ErrorCode != (uint) HResult.ErrorMappingNonExistent) throw;
 				}
 			}
 
@@ -146,8 +143,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 					{
 						// see https://github.com/BTDF/DeploymentFramework/blob/4f047b6ac7067d369365c8776aefe3f4958278a7/src/Tools/SSOSettingsFileImport/SSOSettingsFileImport/SSOHelper.cs#L75
 						// This error occurs randomly and in virtually all cases, an immediate retry succeeds.
-						// Error Code = 'The external credentials in the SSO database are more recent.'
-						if ((uint) exception.ErrorCode != 0xC0002A40) throw;
+						if ((uint) exception.ErrorCode != (uint) HResult.ErrorSsoDbExternalCredentialsAreMoreRecent) throw;
 						if (++retryCount >= 5) throw;
 					}
 				}
