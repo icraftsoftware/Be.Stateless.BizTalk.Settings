@@ -21,6 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using Be.Stateless.BizTalk.Settings.Sso;
 using FluentAssertions;
 using Xunit;
+using static Be.Stateless.Unit.DelegateFactory;
 
 namespace Be.Stateless.BizTalk.Runtime.Caching
 {
@@ -32,9 +33,8 @@ namespace Be.Stateless.BizTalk.Runtime.Caching
 		{
 			const string name = "NonexistentApplication";
 			AffiliateApplication application;
-			Action act = () => application = AffiliateApplicationCache.Instance[name];
-			act.Should()
-				.Throw<InvalidOperationException>()
+			Action(() => application = AffiliateApplicationCache.Instance[name])
+				.Should().Throw<InvalidOperationException>()
 				.WithMessage($"{nameof(AffiliateApplication)} '{name}' does not exist.");
 		}
 	}

@@ -22,6 +22,7 @@ using System.Threading;
 using Be.Stateless.BizTalk.Settings.Sso;
 using FluentAssertions;
 using Xunit;
+using static Be.Stateless.Unit.DelegateFactory;
 
 namespace Be.Stateless.BizTalk.Settings
 {
@@ -87,9 +88,8 @@ namespace Be.Stateless.BizTalk.Settings
 		public void ReadThrowsIfAffiliateApplicationDoesNotExist()
 		{
 			const string name = "NonexistentApplication";
-			Action act = () => SsoConfigurationReader.Instance.Read(name, "property");
-			act.Should()
-				.Throw<InvalidOperationException>()
+			Action(() => SsoConfigurationReader.Instance.Read(name, "property"))
+				.Should().Throw<InvalidOperationException>()
 				.WithMessage($"{nameof(AffiliateApplication)} '{name}' does not exist.");
 		}
 
@@ -97,9 +97,8 @@ namespace Be.Stateless.BizTalk.Settings
 		public void ReadThrowsIfAffiliateApplicationHasNoDefaultStore()
 		{
 			var application = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO).First();
-			Action act = () => SsoConfigurationReader.Instance.Read(application.Name, "property");
-			act.Should()
-				.Throw<InvalidOperationException>()
+			Action(() => SsoConfigurationReader.Instance.Read(application.Name, "property"))
+				.Should().Throw<InvalidOperationException>()
 				.WithMessage(
 					$"The {nameof(AffiliateApplication)} '{application.Name}' is probably not managed by BizTalk.Factory and has not default {nameof(ConfigStore)}.");
 		}
@@ -114,9 +113,8 @@ namespace Be.Stateless.BizTalk.Settings
 				application.ConfigStores.Default.Properties["Key1"] = "Value1";
 				application.ConfigStores.Default.Save();
 
-				Action act = () => SsoConfigurationReader.Instance.Read(name, "Key2");
-
-				act.Should().Throw<ArgumentException>()
+				Action(() => SsoConfigurationReader.Instance.Read(name, "Key2"))
+					.Should().Throw<ArgumentException>()
 					.WithMessage(
 						$"The {nameof(AffiliateApplication)} '{name}' does not provide a value for the configuration property 'Key2' in its default {nameof(ConfigStore)}.*");
 			}
