@@ -24,5 +24,8 @@ namespace Be.Stateless.BizTalk.Settings
     /// <remarks>
     /// This interface exists to define the class that declares the application's settings.
     /// </remarks>
-    public interface IApplicationSettings { }
+    public interface IApplicationSettings
+    {
+        string ApplicationName { get; }
+    }
 }
