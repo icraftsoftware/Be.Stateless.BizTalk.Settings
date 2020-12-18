@@ -21,11 +21,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading;
 using Be.Stateless.Extensions;
 using Be.Stateless.Linq.Extensions;
 using Microsoft.EnterpriseSingleSignOn.Interop;
-using Newtonsoft.Json;
 
 namespace Be.Stateless.BizTalk.Settings.Sso
 {
@@ -236,7 +236,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 		private string SerializeSettings()
 		{
-			return JsonConvert.SerializeObject(Settings);
+			return JsonSerializer.Serialize(Settings);
 		}
 
 		private Dictionary<string, object> DeserializeSettings()
@@ -246,8 +246,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			if (StoreProperties.Properties.TryGetValue(AffiliateApplication.DEFAULT_SETTINGS_KEY, out var settingsValue))
 			{
 				(settingsValue as string).IfNotNullOrWhiteSpace(
-					sv => JsonConvert.DeserializeObject<Dictionary<string, object>>(sv)
-						.ForEach(kvp => result.Add(kvp.Key, kvp.Value)));
+					sv => JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(sv)
+						// TODO should use JsonElement.ValueKind to add a typed object and not always a string
+						.ForEach(kvp => result.Add(kvp.Key, kvp.Value.ToString())));
 			}
 			return result;
 		}
