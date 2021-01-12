@@ -1,6 +1,6 @@
 ﻿#region Copyright & License
 
-// Copyright © 2012 - 2020 François Chabot
+// Copyright © 2012 - 2021 François Chabot
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.Json;
+using System.Text;
 using System.Threading;
+using System.Xml;
 using Be.Stateless.Extensions;
 using Be.Stateless.Linq.Extensions;
 using Microsoft.EnterpriseSingleSignOn.Interop;
@@ -236,19 +238,34 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 		private string SerializeSettings()
 		{
-			return JsonSerializer.Serialize(Settings);
+			var builder = new StringBuilder();
+			using (var writer = XmlWriter.Create(builder, new XmlWriterSettings { Indent = false, OmitXmlDeclaration = true, WriteEndDocumentOnClose = true }))
+			{
+				writer.WriteStartElement("settings");
+				foreach (var kvp in Settings)
+				{
+					writer.WriteElementString(kvp.Key, kvp.Value?.ToString());
+				}
+				writer.WriteEndElement();
+			}
+			return builder.ToString();
 		}
 
+		[SuppressMessage("ReSharper", "InvertIf")]
 		private Dictionary<string, object> DeserializeSettings()
 		{
-			// serialized data is oblivious about OrdinalIgnoreCase and forces us to manually take care of the deserialization
 			var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-			if (StoreProperties.Properties.TryGetValue(AffiliateApplication.DEFAULT_SETTINGS_KEY, out var settingsValue))
+			if (StoreProperties.Properties.TryGetValue(AffiliateApplication.DEFAULT_SETTINGS_KEY, out var @object) && @object is string settings && !settings.IsNullOrWhiteSpace())
 			{
-				(settingsValue as string).IfNotNullOrWhiteSpace(
-					sv => JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(sv)
-						// TODO should use JsonElement.ValueKind to add a typed object and not always a string
-						.ForEach(kvp => result.Add(kvp.Key, kvp.Value.ToString())));
+				using (var reader = XmlReader.Create(new StringReader(settings), new XmlReaderSettings { CloseInput = true }))
+				{
+					reader.ReadStartElement("settings");
+					while (reader.NodeType == XmlNodeType.Element)
+					{
+						result.Add(reader.LocalName, reader.ReadElementContentAsString());
+					}
+					reader.ReadEndElement();
+				}
 			}
 			return result;
 		}

@@ -1,6 +1,6 @@
 ﻿#region Copyright & License
 
-// Copyright © 2012 - 2020 François Chabot
+// Copyright © 2012 - 2021 François Chabot
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,14 +32,14 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void DefaultConfigStoreIsInitiallyEmpty()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-			configStore.SettingsShouldBeInitialized();
+			configStore.Properties.Count.Should().Be(0);
 		}
 
 		[Fact]
 		public void DeleteExistentDefaultConfigStoreDoesNotThrow()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-			configStore.SettingsShouldBeInitialized();
+			configStore.Properties.Count.Should().Be(0);
 			configStore.Properties["Key1"] = "Value1";
 			configStore.Save();
 			Action(() => configStore.Delete()).Should().NotThrow();
@@ -107,7 +107,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void LoadNonexistentDefaultConfigStore()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-			configStore.SettingsShouldBeInitialized();
+			configStore.Properties.Count.Should().Be(0);
 		}
 
 		[Fact]
@@ -133,7 +133,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			try
 			{
 				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.SettingsShouldBeInitialized();
+				configStore.Properties.Count.Should().Be(0);
 
 				configStore.Properties["PropertyNameWithCasing"] = "Value1";
 				configStore.Save();
@@ -167,7 +167,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			try
 			{
 				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				configStore.SettingsShouldBeInitialized();
+				configStore.Properties.Count.Should().Be(0);
 
 				configStore.Properties["Key1"] = "Value1";
 				configStore.Properties["Key2"] = "Value2";
@@ -198,7 +198,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			try
 			{
 				var newConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				newConfigStore.SettingsShouldBeInitialized();
+				newConfigStore.Properties.Count.Should().Be(0);
 
 				newConfigStore.Properties["Key1"] = "Value1";
 				newConfigStore.Properties["Key2"] = "Value2";
@@ -211,10 +211,10 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				existentConfigStore.Properties["Key9"] = "Value9";
 				existentConfigStore.Save();
 
-				var reloadConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				reloadConfigStore.Properties.Should().NotContainValues("Value1", "Value2");
-				reloadConfigStore.Properties.Should().ContainKeys("Key1", "Key2", "Key9");
-				reloadConfigStore.Properties.Should().BeEquivalentTo(existentConfigStore.Properties);
+				var reloadedConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				reloadedConfigStore.Properties.Should().NotContainValues("Value1", "Value2");
+				reloadedConfigStore.Properties.Should().ContainKeys("Key1", "Key2", "Key9");
+				reloadedConfigStore.Properties.Should().BeEquivalentTo(existentConfigStore.Properties);
 			}
 			finally
 			{
@@ -224,12 +224,12 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		}
 
 		[Fact]
-		public void UpdateExistentDefaultConfigStoreWithValueUpdates()
+		public void UpdateExistentDefaultConfigStoreWithNewValues()
 		{
 			try
 			{
 				var newConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				newConfigStore.SettingsShouldBeInitialized();
+				newConfigStore.Properties.Count.Should().Be(0);
 
 				newConfigStore.Properties["Key1"] = "Value1";
 				newConfigStore.Properties["Key2"] = "Value2";
@@ -241,9 +241,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				existentConfigStore.Properties["Key2"] = "Value4";
 				existentConfigStore.Save();
 
-				var reloadConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				reloadConfigStore.Properties.Should().NotContainValues("Value1", "Value2");
-				reloadConfigStore.Properties.Should().BeEquivalentTo(existentConfigStore.Properties);
+				var reloadedConfigStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				reloadedConfigStore.Properties.Should().NotContainValues("Value1", "Value2");
+				reloadedConfigStore.Properties.Should().BeEquivalentTo(existentConfigStore.Properties);
 			}
 			finally
 			{
@@ -263,14 +263,5 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		}
 
 		private readonly AffiliateApplication _affiliateApplication;
-	}
-
-	public static class StoreExtensions
-	{
-		// TODO get riddance
-		public static void SettingsShouldBeInitialized(this ConfigStore store)
-		{
-			store.Properties.Count.Should().Be(0);
-		}
 	}
 }
