@@ -20,7 +20,7 @@
     <PackageId>$(AssemblyName)</PackageId>
     <PackageDescription>$(Description)</PackageDescription>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-    <PackageTags>library extension utility</PackageTags>
+    <PackageTags>BizTalk SSO ENTSSO library extension testing utility</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>

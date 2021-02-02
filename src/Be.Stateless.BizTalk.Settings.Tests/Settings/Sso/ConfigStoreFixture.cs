@@ -28,6 +28,20 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 	[SuppressMessage("Design", "CA1063:Implement IDisposable Correctly")]
 	public class ConfigStoreFixture : IDisposable
 	{
+		#region Setup/Teardown
+
+		public ConfigStoreFixture()
+		{
+			_affiliateApplication = AffiliateApplication.FindByName(nameof(ConfigStoreFixture)) ?? AffiliateApplication.Create(nameof(ConfigStoreFixture));
+		}
+
+		public void Dispose()
+		{
+			_affiliateApplication.Delete();
+		}
+
+		#endregion
+
 		[Fact]
 		public void DefaultConfigStoreIsInitiallyEmpty()
 		{
@@ -148,6 +162,25 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		}
 
 		[Fact]
+		public void SaveAndLoadEmptyDefaultConfigStore()
+		{
+			try
+			{
+				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				configStore.Properties.Should().BeEmpty();
+				configStore.Save();
+
+				configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				Function(() => configStore.Properties).Should().NotThrow();
+			}
+			finally
+			{
+				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
+				configStore.Delete();
+			}
+		}
+
+		[Fact]
 		public void SaveExistentNonDefaultConfigStoreThrows()
 		{
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
@@ -250,16 +283,6 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
 				configStore.Delete();
 			}
-		}
-
-		public ConfigStoreFixture()
-		{
-			_affiliateApplication = AffiliateApplication.FindByName(nameof(ConfigStoreFixture)) ?? AffiliateApplication.Create(nameof(ConfigStoreFixture));
-		}
-
-		public void Dispose()
-		{
-			_affiliateApplication.Delete();
 		}
 
 		private readonly AffiliateApplication _affiliateApplication;

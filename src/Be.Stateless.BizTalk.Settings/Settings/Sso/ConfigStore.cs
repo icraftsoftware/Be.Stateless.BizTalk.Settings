@@ -259,12 +259,16 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			{
 				using (var reader = XmlReader.Create(new StringReader(settings), new XmlReaderSettings { CloseInput = true }))
 				{
+					reader.MoveToContent();
 					reader.ReadStartElement("settings");
 					while (reader.NodeType == XmlNodeType.Element)
 					{
 						result.Add(reader.LocalName, reader.ReadElementContentAsString());
 					}
-					reader.ReadEndElement();
+					if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "settings") reader.ReadEndElement();
+					if (reader.NodeType != XmlNodeType.None)
+						throw new InvalidOperationException(
+							$"{nameof(AffiliateApplication)} '{_affiliateApplicationName}' {nameof(ConfigStore)}'s {nameof(Settings)} deserializer has reached an unexpected state: {reader.NodeType}, Name='{reader.Name}'.");
 				}
 			}
 			return result;
