@@ -1,6 +1,6 @@
 ﻿#region Copyright & License
 
-// Copyright © 2012 - 2020 François Chabot
+// Copyright © 2012 - 2021 François Chabot
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Be.Stateless.BizTalk.Settings.Sso.Extensions;
 using Be.Stateless.Extensions;
 using Microsoft.EnterpriseSingleSignOn.Interop;
 
@@ -37,11 +38,13 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// <param name="name">
 		/// The Application name; it cannot be NULL, an empty string, or contain spaces.
 		/// </param>
-		/// <param name="userGroup">
-		/// The Application Users group name. It defaults to "BizTalk Application Users".
+		/// <param name="administratorGroups">
+		/// The Application Administrators group name. It defaults to "BizTalk Server Administrators" ; <see
+		/// cref="DefaultAdministratorGroups"/>.
 		/// </param>
-		/// <param name="administratorGroup">
-		/// The Application Administrators group name. It defaults to "BizTalk Server Administrators".
+		/// <param name="userGroups">
+		/// The Application Users group name. It defaults to "BizTalk Application Users" and "BizTalk Isolated Host Users"; <see
+		/// cref="DefaultUserGroups"/>.
 		/// </param>
 		/// <param name="description">
 		/// The Application description.
@@ -57,10 +60,9 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		[SuppressMessage("ReSharper", "CommentTypo")]
 		public static AffiliateApplication Create(
 			string name,
-			string userGroup = DEFAULT_USER_GROUP_NAME,
-			string administratorGroup = DEFAULT_ADMINISTRATOR_GROUP_NAME,
-			string description = null
-		)
+			string[] administratorGroups = null,
+			string[] userGroups = null,
+			string description = null)
 		{
 			if (name.IsNullOrEmpty()) throw new ArgumentNullException(nameof(name));
 			if (name.Contains(' ')) throw new ArgumentException("Name cannot contain spaces.", nameof(name));
@@ -68,10 +70,10 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 			var application = new AffiliateApplication {
 				Name = name,
-				AdministratorGroup = administratorGroup ?? DEFAULT_ADMINISTRATOR_GROUP_NAME,
+				AdministratorGroups = administratorGroups ?? DefaultAdministratorGroups,
 				Contact = DEFAULT_CONTACT_INFO,
 				Description = description ?? $"{name} Configuration Store",
-				UserGroup = userGroup ?? DEFAULT_USER_GROUP_NAME
+				UserGroups = userGroups ?? DefaultUserGroups
 			};
 
 			var ssoAdmin = new ISSOAdmin();
@@ -79,8 +81,8 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				application.Name,
 				application.Description,
 				application.Contact,
-				application.UserGroup,
-				application.AdministratorGroup,
+				application.UserGroups.JoinGroups(),
+				application.AdministratorGroups.JoinGroups(),
 				SSOFlag.SSO_FLAG_APP_CONFIG_STORE | SSOFlag.SSO_FLAG_APP_ALLOW_LOCAL | SSOFlag.SSO_FLAG_SSO_WINDOWS_TO_EXTERNAL,
 				2 /* number of fields to be created */);
 			ssoAdmin.CreateFieldInfo(name, application.Contact, SSOFlag.SSO_FLAG_NONE);
@@ -89,6 +91,12 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 			return application;
 		}
+
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+		public static string[] DefaultAdministratorGroups { get; } = { "BizTalk Server Administrators" };
+
+		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+		public static string[] DefaultUserGroups { get; } = { "BizTalk Application Users", "BizTalk Isolated Host Users" };
 
 		/// <summary>
 		/// Returns all the <see cref="AffiliateApplication"/>s which are associated to a given <paramref name="contact"/> and
@@ -121,16 +129,16 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			object appFilterFlagMask = (uint) SSOFlag.SSO_FLAG_APP_FILTER_BY_TYPE;
 			propBag.Write("AppFilterFlagMask", ref appFilterFlagMask);
 
-			mapper.GetApplications2(out var applications, out var descriptions, out var contacts, out var userAccounts, out var adminAccounts, out _);
-			return Enumerable.Range(0, applications.Length)
-				.Where(i => contact == ANY_CONTACT_INFO || contacts[i].Equals(contact, StringComparison.OrdinalIgnoreCase))
+			mapper.GetApplications2(out var applicationList, out var descriptionList, out var contactList, out var userGroupsList, out var administratorGroupsList, out _);
+			return Enumerable.Range(0, applicationList.Length)
+				.Where(i => contact == ANY_CONTACT_INFO || contactList[i].Equals(contact, StringComparison.OrdinalIgnoreCase))
 				.Select(
 					i => new AffiliateApplication {
-						Name = applications[i],
-						Description = descriptions[i],
-						Contact = contacts[i],
-						AdministratorGroup = adminAccounts[i],
-						UserGroup = userAccounts[i]
+						Name = applicationList[i],
+						Description = descriptionList[i],
+						Contact = contactList[i],
+						AdministratorGroups = administratorGroupsList[i].SplitGroups(),
+						UserGroups = userGroupsList[i].SplitGroups()
 					});
 		}
 
@@ -151,8 +159,14 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			try
 			{
 				var ssoAdmin = new ISSOAdmin();
-				ssoAdmin.GetApplicationInfo(name, out var description, out var contact, out var userGroupName, out var adminGroupName, out _, out _);
-				return new AffiliateApplication { Name = name, Contact = contact, Description = description, AdministratorGroup = adminGroupName, UserGroup = userGroupName };
+				ssoAdmin.GetApplicationInfo(name, out var description, out var contact, out var userGroups, out var administratorGroups, out _, out _);
+				return new AffiliateApplication {
+					Name = name,
+					Contact = contact,
+					Description = description,
+					AdministratorGroups = administratorGroups.SplitGroups(),
+					UserGroups = userGroups.SplitGroups()
+				};
 			}
 			catch (COMException exception)
 			{
@@ -171,7 +185,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// The application Administrators group name.
 		/// </summary>
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
-		public string AdministratorGroup { get; private set; }
+		public string[] AdministratorGroups { get; private set; }
 
 		/// <summary>
 		/// The application's <see cref="ConfigStore"/>s.
@@ -198,7 +212,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		/// The application Users group name.
 		/// </summary>
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Public API.")]
-		public string UserGroup { get; private set; }
+		public string[] UserGroups { get; private set; }
 
 		/// <summary>
 		/// Determines whether this <see cref="AffiliateApplication"/> has been created by <b>BizTalk.Factory</b>, i.e by this
@@ -229,8 +243,6 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 		internal const string DEFAULT_CONTACT_INFO = "icraftsoftware@stateless.be";
 		internal const string DEFAULT_SETTINGS_KEY = "settings";
-		private const string DEFAULT_ADMINISTRATOR_GROUP_NAME = "BizTalk Server Administrators";
-		private const string DEFAULT_USER_GROUP_NAME = "BizTalk Application Users";
 		private readonly Lazy<ConfigStoreCollection> _lazyConfigStoreCollection;
 	}
 }
