@@ -21,7 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
-using static Be.Stateless.Unit.DelegateFactory;
+using static FluentAssertions.FluentActions;
 
 namespace Be.Stateless.BizTalk.Settings.Sso
 {
@@ -56,7 +56,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			configStore.Properties.Count.Should().Be(0);
 			configStore.Properties["Key1"] = "Value1";
 			configStore.Save();
-			Action(() => configStore.Delete()).Should().NotThrow();
+			Invoking(() => configStore.Delete()).Should().NotThrow();
 		}
 
 		[Fact]
@@ -67,7 +67,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			affiliateApplication.ConfigStores.Should().NotBeEmpty();
 			var configStore = affiliateApplication.ConfigStores.Values.First();
 
-			Action(() => configStore.Delete())
+			Invoking(() => configStore.Delete())
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage("Cannot delete a ConfigStore other than the default one.");
 		}
@@ -76,14 +76,14 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void DeleteNonexistentDefaultConfigStoreDoesNotThrow()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-			Action(() => configStore.Delete()).Should().NotThrow();
+			Invoking(() => configStore.Delete()).Should().NotThrow();
 		}
 
 		[Fact]
 		public void DeleteNonexistentNonDefaultConfigStoreThrows()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, Guid.NewGuid().ToString("B"));
-			Action(() => configStore.Delete())
+			Invoking(() => configStore.Delete())
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage("Cannot delete a ConfigStore other than the default one.");
 		}
@@ -171,7 +171,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 				configStore.Save();
 
 				configStore = new ConfigStore(_affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
-				Function(() => configStore.Properties).Should().NotThrow();
+				Invoking(() => configStore.Properties).Should().NotThrow();
 			}
 			finally
 			{
@@ -189,7 +189,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			var configStore = affiliateApplication.ConfigStores.Values.First();
 			configStore.Properties["Key1"] = "Value1";
 
-			Action(() => configStore.Save())
+			Invoking(() => configStore.Save())
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage("Cannot save or overwrite the properties of a ConfigStore other than the default one.");
 		}
@@ -220,7 +220,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void SaveNonexistentNonDefaultConfigStoreThrows()
 		{
 			var configStore = new ConfigStore(_affiliateApplication.Name, Guid.NewGuid().ToString("B"));
-			Action(() => configStore.Save())
+			Invoking(() => configStore.Save())
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage("Cannot save or overwrite the properties of a ConfigStore other than the default one.");
 		}

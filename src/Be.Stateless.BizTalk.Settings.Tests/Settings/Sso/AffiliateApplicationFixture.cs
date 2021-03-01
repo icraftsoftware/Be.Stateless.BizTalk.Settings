@@ -22,7 +22,7 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.EnterpriseSingleSignOn.Interop;
 using Xunit;
-using static Be.Stateless.Unit.DelegateFactory;
+using static FluentAssertions.FluentActions;
 
 namespace Be.Stateless.BizTalk.Settings.Sso
 {
@@ -74,7 +74,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			const string name = nameof(AffiliateApplicationFixture) + ".Create";
 			try
 			{
-				Action(() => AffiliateApplication.Create(name)).Should().NotThrow();
+				Invoking(() => AffiliateApplication.Create(name)).Should().NotThrow();
 				AffiliateApplication.FindByName(name).Should().NotBeNull();
 			}
 			finally
@@ -86,7 +86,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		[Fact]
 		public void CreateThrowsIfAlreadyExists()
 		{
-			Action(() => AffiliateApplication.Create(_affiliateApplication.Name))
+			Invoking(() => AffiliateApplication.Create(_affiliateApplication.Name))
 				.Should().Throw<ArgumentException>()
 				.WithMessage($"{nameof(AffiliateApplication)} '{_affiliateApplication.Name}' already exists and cannot be duplicated.*");
 		}
@@ -98,7 +98,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			try
 			{
 				var affiliateApplication = AffiliateApplication.Create(name);
-				Action(() => affiliateApplication.Delete()).Should().NotThrow();
+				Invoking(() => affiliateApplication.Delete()).Should().NotThrow();
 				AffiliateApplication.FindByName(name).Should().BeNull();
 			}
 			finally
@@ -112,7 +112,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		{
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
 				.First(a => !a.Name.StartsWith(nameof(AffiliateApplicationFixture)) && a.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO);
-			Action(() => affiliateApplication.Delete())
+			Invoking(() => affiliateApplication.Delete())
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage(
 					$"To prevent any destructive effects, BizTalk.Factory will not delete an {nameof(AffiliateApplication)} that it has not created or that has other {nameof(ConfigStore)}s than the default one.");
@@ -128,15 +128,15 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 
 				var defaultConfigStore = new ConfigStore(affiliateApplication.Name, ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
 				defaultConfigStore.Properties["key1"] = "value1";
-				Action(() => defaultConfigStore.Save()).Should().NotThrow();
+				Invoking(() => defaultConfigStore.Save()).Should().NotThrow();
 
 				var otherConfigStore = new ConfigStore.ConfigStoreProperties(affiliateApplication.Name, Guid.NewGuid().ToString("B"));
 				otherConfigStore.Properties["key2"] = "value2";
-				Action(() => otherConfigStore.Save()).Should().NotThrow();
+				Invoking(() => otherConfigStore.Save()).Should().NotThrow();
 
 				AffiliateApplication.FindByName(name).ConfigStores.Should().HaveCount(2);
 
-				Action(() => affiliateApplication.Delete())
+				Invoking(() => affiliateApplication.Delete())
 					.Should().Throw<InvalidOperationException>()
 					.WithMessage(
 						$"To prevent any destructive effects, BizTalk.Factory will not delete an {nameof(AffiliateApplication)} that it has not created or that has other {nameof(ConfigStore)}s than the default one.");

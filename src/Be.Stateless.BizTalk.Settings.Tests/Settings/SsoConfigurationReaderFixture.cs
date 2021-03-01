@@ -1,6 +1,6 @@
 ﻿#region Copyright & License
 
-// Copyright © 2012 - 2020 François Chabot
+// Copyright © 2012 - 2021 François Chabot
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ using System.Threading;
 using Be.Stateless.BizTalk.Settings.Sso;
 using FluentAssertions;
 using Xunit;
-using static Be.Stateless.Unit.DelegateFactory;
+using static FluentAssertions.FluentActions;
 
 namespace Be.Stateless.BizTalk.Settings
 {
@@ -88,7 +88,7 @@ namespace Be.Stateless.BizTalk.Settings
 		public void ReadThrowsIfAffiliateApplicationDoesNotExist()
 		{
 			const string name = "NonexistentApplication";
-			Action(() => SsoConfigurationReader.Instance.Read(name, "property"))
+			Invoking(() => SsoConfigurationReader.Instance.Read(name, "property"))
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage($"{nameof(AffiliateApplication)} '{name}' does not exist.");
 		}
@@ -97,7 +97,7 @@ namespace Be.Stateless.BizTalk.Settings
 		public void ReadThrowsIfAffiliateApplicationHasNoDefaultStore()
 		{
 			var application = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO).First();
-			Action(() => SsoConfigurationReader.Instance.Read(application.Name, "property"))
+			Invoking(() => SsoConfigurationReader.Instance.Read(application.Name, "property"))
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage(
 					$"The {nameof(AffiliateApplication)} '{application.Name}' is probably not managed by BizTalk.Factory and has not default {nameof(ConfigStore)}.");
@@ -113,7 +113,7 @@ namespace Be.Stateless.BizTalk.Settings
 				application.ConfigStores.Default.Properties["Key1"] = "Value1";
 				application.ConfigStores.Default.Save();
 
-				Action(() => SsoConfigurationReader.Instance.Read(name, "Key2"))
+				Invoking(() => SsoConfigurationReader.Instance.Read(name, "Key2"))
 					.Should().Throw<ArgumentException>()
 					.WithMessage(
 						$"The {nameof(AffiliateApplication)} '{name}' does not provide a value for the configuration property 'Key2' in its default {nameof(ConfigStore)}.*");

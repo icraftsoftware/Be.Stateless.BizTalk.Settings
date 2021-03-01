@@ -1,6 +1,6 @@
 ﻿#region Copyright & License
 
-// Copyright © 2012 - 2020 François Chabot
+// Copyright © 2012 - 2021 François Chabot
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using Be.Stateless.BizTalk.Settings.Sso;
 using FluentAssertions;
 using Xunit;
-using static Be.Stateless.Unit.DelegateFactory;
+using static FluentAssertions.FluentActions;
 
 namespace Be.Stateless.BizTalk.Runtime.Caching
 {
@@ -33,7 +33,7 @@ namespace Be.Stateless.BizTalk.Runtime.Caching
 		{
 			const string name = "NonexistentApplication";
 			AffiliateApplication application;
-			Action(() => application = AffiliateApplicationCache.Instance[name])
+			Invoking(() => application = AffiliateApplicationCache.Instance[name])
 				.Should().Throw<InvalidOperationException>()
 				.WithMessage($"{nameof(AffiliateApplication)} '{name}' does not exist.");
 		}
