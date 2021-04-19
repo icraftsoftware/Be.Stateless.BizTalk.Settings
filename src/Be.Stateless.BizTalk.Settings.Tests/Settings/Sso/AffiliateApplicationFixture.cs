@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.EnterpriseSingleSignOn.Interop;
@@ -26,7 +25,6 @@ using static FluentAssertions.FluentActions;
 
 namespace Be.Stateless.BizTalk.Settings.Sso
 {
-	[SuppressMessage("Design", "CA1063:Implement IDisposable Correctly")]
 	public class AffiliateApplicationFixture : IDisposable
 	{
 		#region Setup/Teardown
@@ -62,8 +60,8 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		[Fact]
 		public void AffiliateApplicationNotCreatedByBizTalkFactoryDoesNotContainDefaultConfigStore()
 		{
-			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO).First(a => a.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO);
-			affiliateApplication.ConfigStores.Should().NotBeEmpty();
+			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
+				.First(a => a.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO && a.ConfigStores.Any());
 			affiliateApplication.ConfigStores.Default.Should().BeNull();
 			affiliateApplication.ConfigStores.Should().OnlyContain(kvp => kvp.Key != ConfigStoreCollection.DEFAULT_CONFIG_STORE_IDENTIFIER);
 		}

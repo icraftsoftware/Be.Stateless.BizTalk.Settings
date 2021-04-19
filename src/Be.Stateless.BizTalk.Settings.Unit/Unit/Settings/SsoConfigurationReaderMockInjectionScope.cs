@@ -1,6 +1,6 @@
 ﻿#region Copyright & License
 
-// Copyright © 2012 - 2020 François Chabot
+// Copyright © 2012 - 2021 François Chabot
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Be.Stateless.BizTalk.Settings;
 using Moq;
 
-namespace Be.Stateless.BizTalk.Settings
+namespace Be.Stateless.BizTalk.Unit.Settings
 {
-	[SuppressMessage("Design", "CA1063:Implement IDisposable Correctly")]
 	[SuppressMessage("ReSharper", "MemberCanBeProtected.Global", Justification = "Public API.")]
 	[SuppressMessage("ReSharper", "UnusedType.Global", Justification = "Public API.")]
 	public class SsoConfigurationReaderMockInjectionScope : IDisposable
@@ -36,7 +36,6 @@ namespace Be.Stateless.BizTalk.Settings
 
 		#region IDisposable Members
 
-		[SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize")]
 		public void Dispose()
 		{
 			SsoConfigurationReader.Instance = _ssoConfigurationReader;

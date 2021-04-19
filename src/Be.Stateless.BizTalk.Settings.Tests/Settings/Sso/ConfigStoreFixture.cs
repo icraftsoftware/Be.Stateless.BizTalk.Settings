@@ -25,7 +25,6 @@ using static FluentAssertions.FluentActions;
 
 namespace Be.Stateless.BizTalk.Settings.Sso
 {
-	[SuppressMessage("Design", "CA1063:Implement IDisposable Correctly")]
 	public class ConfigStoreFixture : IDisposable
 	{
 		#region Setup/Teardown
@@ -63,7 +62,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void DeleteExistentNonDefaultConfigStoreThrows()
 		{
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
-				.First(s => s.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO);
+				.First(a => a.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO && a.ConfigStores.Any());
 			affiliateApplication.ConfigStores.Should().NotBeEmpty();
 			var configStore = affiliateApplication.ConfigStores.Values.First();
 
@@ -111,8 +110,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void LoadExistentNonDefaultConfigStore()
 		{
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
-				.First(s => s.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO);
-			affiliateApplication.ConfigStores.Should().NotBeEmpty();
+				.First(a => a.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO && a.ConfigStores.Any());
 			var existentConfigStore = affiliateApplication.ConfigStores.Values.First();
 			existentConfigStore.Properties.Should().NotBeEmpty();
 		}
@@ -184,7 +182,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 		public void SaveExistentNonDefaultConfigStoreThrows()
 		{
 			var affiliateApplication = AffiliateApplication.FindByContact(AffiliateApplication.ANY_CONTACT_INFO)
-				.First(s => s.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO);
+				.First(a => a.Contact != AffiliateApplication.DEFAULT_CONTACT_INFO && a.ConfigStores.Any());
 			affiliateApplication.ConfigStores.Should().NotBeEmpty();
 			var configStore = affiliateApplication.ConfigStores.Values.First();
 			configStore.Properties["Key1"] = "Value1";

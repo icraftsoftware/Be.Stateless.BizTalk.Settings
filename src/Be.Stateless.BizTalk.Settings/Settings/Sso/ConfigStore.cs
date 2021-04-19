@@ -274,7 +274,7 @@ namespace Be.Stateless.BizTalk.Settings.Sso
 			return result;
 		}
 
-		private static object _lock = new object();
+		private static object _lock = new();
 		private readonly string _affiliateApplicationName;
 		private bool _propertiesLoaded;
 		private IDictionary<string, object> _settings;
